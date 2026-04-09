@@ -1,47 +1,34 @@
-Heroku: fix "No default language could be detected"
+Heroku deploy (Laravel API)
 
-  Heroku looks at the REPO ROOT for composer.json / package.json. This monorepo has
-  Laravel only under backend/, so auto-detection fails until buildpacks are set.
+  The repo root now has composer.json + composer.lock + Procfile so the heroku/php
+  buildpack can run without a subdirectory buildpack. Dependencies install into
+  backend/vendor; the web process serves backend/public/.
 
-  You MUST configure buildpacks (and PROJECT_PATH) on the Heroku app — pushing code
-  alone is not enough.
+One-time
 
-────────────────────────────────────────
-A) Heroku Dashboard (easiest)
+  heroku stack:set heroku-24 -a YOUR_APP
+  heroku buildpacks:set heroku/php -a YOUR_APP
 
-  1) https://dashboard.heroku.com → select your app → Settings.
+  Set config vars from backend/.env.example (APP_KEY, DATABASE_URL, APP_URL, SANCTUM_*,
+  CORS_*, STRIPE_*, etc.).
 
-  2) Buildpacks → Clear any wrong entries, then Add buildpack IN THIS ORDER:
-       First:  https://github.com/timanovsky/subdir-heroku-buildpack
-       Second: heroku/php
-     (If you can reorder, subdir must be above PHP.)
+After changing PHP dependencies
 
-  3) Settings → Config Vars → Add:
-       PROJECT_PATH = backend
-     (no trailing slash)
+  Prefer updating from the repo root so both lock files stay aligned:
 
-  4) Deploy → Deploy Branch (or push again after saving).
+    cd /path/to/repo
+    composer update
+    cp composer.lock backend/composer.lock
 
-────────────────────────────────────────
-B) Heroku CLI
+  Or edit backend/composer.json, run composer update in backend/, then copy
+  backend/composer.lock to the repo root and merge any require changes into the
+  root composer.json (keep autoload paths with the backend/ prefix).
 
-  heroku buildpacks:clear -a YOUR_APP
-  heroku buildpacks:set https://github.com/timanovsky/subdir-heroku-buildpack -a YOUR_APP
-  heroku buildpacks:add heroku/php -a YOUR_APP
-  heroku config:set PROJECT_PATH=backend -a YOUR_APP
+Local development
 
-────────────────────────────────────────
-Also set Laravel env (examples)
+  You can keep using "cd backend && composer install" as before; keep
+  backend/composer.lock in sync with the root lock file when you change deps.
 
-  heroku config:set APP_KEY=base64:... APP_ENV=production APP_DEBUG=false -a YOUR_APP
-  (Use DATABASE_URL, SANCTUM_*, CORS_*, STRIPE_* from backend/.env.example.)
+Frontend
 
-  backend/Procfile: web server for Laravel public/
-
-  Frontend: deploy on Vercel; set VITE_API_URL to this Heroku app URL.
-
-────────────────────────────────────────
-Repo files: app.json and .buildpacks
-
-  Some workflows use these as hints. Heroku may still require Dashboard/CLI buildpacks.
-  New app from manifest: heroku create --manifest (reads app.json).
+  Deploy on Vercel; set VITE_API_URL to your Heroku app URL.

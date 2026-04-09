@@ -1,15 +1,6 @@
 {
   "name": "smart-cafe-management-system",
-  "description": "Monorepo: Laravel API (backend/) + React SPA (frontend/). Heroku runs backend/ only.",
+  "description": "Monorepo: Laravel API (backend/) + React SPA (frontend/). Heroku uses root composer.json + Procfile.",
   "stack": "heroku-24",
-  "buildpacks": [
-    { "url": "https://github.com/timanovsky/subdir-heroku-buildpack" },
-    { "url": "heroku/php" }
-  ],
-  "env": {
-    "PROJECT_PATH": {
-      "description": "Promote backend/ to the slug root before the PHP buildpack runs.",
-      "value": "backend"
-    }
-  }
+  "buildpacks": [{ "url": "heroku/php" }]
 }
