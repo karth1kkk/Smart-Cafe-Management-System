@@ -324,7 +324,7 @@ export function LoginPage() {
                       <>
                         Migrations only create tables; staff come from the seeder. On Heroku run:{' '}
                         <code className="mt-2 block break-all font-mono text-[11px] text-orange-400">
-                          heroku run &quot;cd backend &amp;&amp; php artisan db:seed --force&quot; -a YOUR_APP_NAME
+                          heroku run &quot;cd backend &amp;&amp; php artisan db:seed --force&quot; -a smartcafe-backend
                         </code>
                       </>
                     )}
