@@ -77,7 +77,7 @@ class DatabaseSeeder extends Seeder
         $this->seedMenuItem($matcha->id, 'Iced Matcha Latte', 6.75, [
             ['inventory_item_id' => $inventory['Matcha Powder']->id, 'quantity' => 0.02],
             ['inventory_item_id' => $inventory['Milk']->id, 'quantity' => 0.25],
-        ], 'https://images.unsplash.com/photo-1515823662972-da6a2e1d3182?w=800&q=80');
+        ], 'https://images.unsplash.com/photo-1749280447307-31a68eb38673?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aWNlZCUyMG1hdGNoYSUyMGxhdHRlfGVufDB8fDB8fHww');
         $this->seedMenuItem($pastry->id, 'Butter Croissant', 4.25, [], 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80');
 
         // Avoid User::factory() here: Heroku uses composer --no-dev (no fakerphp/faker).
