@@ -77,4 +77,16 @@ return [
         public_path('storage') => storage_path('app/public'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Menu item images
+    |--------------------------------------------------------------------------
+    |
+    | Disk name from "disks" above. Use "public" locally; on Heroku use "s3"
+    | so uploads survive dyno restarts (set AWS_* and MENU_IMAGES_DISK=s3).
+    |
+    */
+
+    'menu_images_disk' => env('MENU_IMAGES_DISK', 'public'),
+
 ];

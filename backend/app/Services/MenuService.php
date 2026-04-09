@@ -9,6 +9,11 @@ use Illuminate\Support\Str;
 
 class MenuService
 {
+    private function imageDisk(): string
+    {
+        return config('filesystems.menu_images_disk', 'public');
+    }
+
     public function store(array $payload): MenuItem
     {
         return MenuItem::create($this->preparePayload(new MenuItem, $payload));
@@ -25,7 +30,7 @@ class MenuService
     public function delete(MenuItem $menuItem): void
     {
         if ($menuItem->image_path) {
-            Storage::disk('public')->delete($menuItem->image_path);
+            Storage::disk($this->imageDisk())->delete($menuItem->image_path);
         }
 
         $menuItem->delete();
@@ -35,10 +40,10 @@ class MenuService
     {
         if (isset($payload['image']) && $payload['image'] instanceof UploadedFile) {
             if ($menuItem->image_path) {
-                Storage::disk('public')->delete($menuItem->image_path);
+                Storage::disk($this->imageDisk())->delete($menuItem->image_path);
             }
 
-            $payload['image_path'] = $payload['image']->store('menu-items', 'public');
+            $payload['image_path'] = $payload['image']->storePublicly('menu-items', $this->imageDisk());
         }
 
         unset($payload['image']);

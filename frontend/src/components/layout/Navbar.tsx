@@ -59,7 +59,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-3 rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2">
           <div className="text-right">
-            <p className="text-[10px] uppercase tracking-wide text-slate-500">Station time</p>
+            <p className="text-[10px] uppercase tracking-wide text-slate-500">ime</p>
             <LiveClock />
           </div>
         </div>

@@ -29,6 +29,24 @@ Local development
   You can keep using "cd backend && composer install" as before; keep
   backend/composer.lock in sync with the root lock file when you change deps.
 
+Release phase (Procfile)
+
+  Each deploy runs: migrate --force && storage:link --force so local disk uploads work
+  until the dyno restarts. For menu images that must persist, use S3 (see below).
+
+Menu images (persistent on Heroku)
+
+  Ephemeral dyno disk loses files on restart. Set:
+
+    MENU_IMAGES_DISK=s3
+    AWS_ACCESS_KEY_ID=...
+    AWS_SECRET_ACCESS_KEY=...
+    AWS_DEFAULT_REGION=...
+    AWS_BUCKET=your-bucket
+
+  Create an S3 bucket that allows public read for objects (or use CloudFront + AWS_URL).
+  Uploads use public visibility so image_url works in the API JSON.
+
 Frontend
 
   Deploy on Vercel; set VITE_API_URL to your Heroku app URL.
