@@ -314,9 +314,20 @@ export function LoginPage() {
                 <div className="max-w-md space-y-4 text-center">
                   <p className="text-slate-300">No staff accounts in the database.</p>
                   <p className="text-sm text-slate-500">
-                    In the project <code className="rounded bg-slate-800 px-1.5 py-0.5 text-slate-300">backend</code>{' '}
-                    folder run:{' '}
-                    <code className="font-mono text-orange-400">php artisan migrate --seed</code>
+                    {import.meta.env.DEV ? (
+                      <>
+                        In the{' '}
+                        <code className="rounded bg-slate-800 px-1.5 py-0.5 text-slate-300">backend</code> folder run:{' '}
+                        <code className="font-mono text-orange-400">php artisan migrate --seed</code>
+                      </>
+                    ) : (
+                      <>
+                        Migrations only create tables; staff come from the seeder. On Heroku run:{' '}
+                        <code className="mt-2 block break-all font-mono text-[11px] text-orange-400">
+                          heroku run &quot;cd backend &amp;&amp; php artisan db:seed --force&quot; -a YOUR_APP_NAME
+                        </code>
+                      </>
+                    )}
                   </p>
                   <button
                     type="button"

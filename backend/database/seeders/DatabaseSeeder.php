@@ -79,7 +79,7 @@ class DatabaseSeeder extends Seeder
         ]);
         $this->seedMenuItem($pastry->id, 'Butter Croissant', 4.25, []);
 
-        User::factory(3)->create();
+        // Avoid User::factory() here: Heroku uses composer --no-dev (no fakerphp/faker).
     }
 
     private function seedMenuItem(int $categoryId, string $name, float $price, array $recipe): void
