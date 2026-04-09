@@ -38,15 +38,15 @@ class DatabaseSeeder extends Seeder
         );
 
         $coffee = Category::query()->updateOrCreate(
-            ['slug' => 'coffee'],
+            ['slug' => 'Coffee'],
             ['name' => 'Coffee']
         );
         $matcha = Category::query()->updateOrCreate(
-            ['slug' => 'matcha'],
+            ['slug' => 'Matcha'],
             ['name' => 'Matcha']
         );
         $pastry = Category::query()->updateOrCreate(
-            ['slug' => 'pastry'],
+            ['slug' => 'Pastry'],
             ['name' => 'Pastry']
         );
 
@@ -65,35 +65,42 @@ class DatabaseSeeder extends Seeder
             return [$item['name'] => $record];
         });
 
+        // Remote image URLs (Unsplash) — no upload needed for demo; see MenuItem::isRemoteImagePath
         $this->seedMenuItem($coffee->id, 'Flat White', 5.50, [
             ['inventory_item_id' => $inventory['Coffee Beans']->id, 'quantity' => 0.03],
             ['inventory_item_id' => $inventory['Milk']->id, 'quantity' => 0.25],
-        ]);
+        ], 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&q=80');
         $this->seedMenuItem($coffee->id, 'Cappuccino', 5.25, [
             ['inventory_item_id' => $inventory['Coffee Beans']->id, 'quantity' => 0.03],
             ['inventory_item_id' => $inventory['Milk']->id, 'quantity' => 0.20],
-        ]);
+        ], 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800&q=80');
         $this->seedMenuItem($matcha->id, 'Iced Matcha Latte', 6.75, [
             ['inventory_item_id' => $inventory['Matcha Powder']->id, 'quantity' => 0.02],
             ['inventory_item_id' => $inventory['Milk']->id, 'quantity' => 0.25],
-        ]);
-        $this->seedMenuItem($pastry->id, 'Butter Croissant', 4.25, []);
+        ], 'https://images.unsplash.com/photo-1515823662972-da6a2e1d3182?w=800&q=80');
+        $this->seedMenuItem($pastry->id, 'Butter Croissant', 4.25, [], 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80');
 
         // Avoid User::factory() here: Heroku uses composer --no-dev (no fakerphp/faker).
     }
 
-    private function seedMenuItem(int $categoryId, string $name, float $price, array $recipe): void
+    private function seedMenuItem(int $categoryId, string $name, float $price, array $recipe, ?string $imageUrl = null): void
     {
+        $attributes = [
+            'category_id' => $categoryId,
+            'name' => $name,
+            'description' => "{$name} prepared fresh for the cafe POS demo.",
+            'price' => $price,
+            'is_available' => true,
+            'recipe_json' => $recipe,
+        ];
+
+        if ($imageUrl !== null) {
+            $attributes['image_path'] = $imageUrl;
+        }
+
         MenuItem::query()->updateOrCreate(
             ['slug' => Str::slug($name)],
-            [
-                'category_id' => $categoryId,
-                'name' => $name,
-                'description' => "{$name} prepared fresh for the cafe POS demo.",
-                'price' => $price,
-                'is_available' => true,
-                'recipe_json' => $recipe,
-            ]
+            $attributes
         );
     }
 }

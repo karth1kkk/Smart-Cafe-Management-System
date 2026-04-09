@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
+import { ImageIcon } from 'lucide-react'
 
 import { api } from '../lib/api'
 import type { ApiCollection, Category, MenuItem } from '../types/api'
@@ -26,8 +27,20 @@ export function MenuManagementPage() {
   const [menu, setMenu] = useState<MenuItem[]>([])
   const [form, setForm] = useState<MenuFormState>(initialState)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [newImagePreviewUrl, setNewImagePreviewUrl] = useState<string | null>(null)
   const [editingItemId, setEditingItemId] = useState<number | null>(null)
+  const [editingExistingImageUrl, setEditingExistingImageUrl] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!selectedFile) {
+      setNewImagePreviewUrl(null)
+      return
+    }
+    const url = URL.createObjectURL(selectedFile)
+    setNewImagePreviewUrl(url)
+    return () => URL.revokeObjectURL(url)
+  }, [selectedFile])
 
   useEffect(() => {
     async function loadPageData() {
@@ -89,6 +102,7 @@ export function MenuManagementPage() {
       setForm(initialState)
       setSelectedFile(null)
       setEditingItemId(null)
+      setEditingExistingImageUrl(null)
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 422) {
         const data = err.response.data as { errors?: Record<string, string[]>; message?: string }
@@ -107,6 +121,8 @@ export function MenuManagementPage() {
 
   function startEditing(item: MenuItem) {
     setEditingItemId(item.id)
+    setSelectedFile(null)
+    setEditingExistingImageUrl(item.image_url)
     setForm({
       category_id: String(item.category_id),
       name: item.name,
@@ -181,15 +197,39 @@ export function MenuManagementPage() {
             />
           </label>
 
-          <label className="text-sm font-medium text-slate-300">
-            Image
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
-              className="mt-2 w-full rounded-lg border border-slate-600 bg-slate-800 px-4 py-3 text-slate-200"
-            />
-          </label>
+          <div className="space-y-2">
+            <span className="text-sm font-medium text-slate-300">Photo</span>
+            <p className="text-xs text-slate-500">
+              Optional. JPEG, PNG, or WebP — up to 5&nbsp;MB. Shown on the POS and in this list.
+            </p>
+            {(newImagePreviewUrl || editingExistingImageUrl) && (
+              <div className="flex items-start gap-3 rounded-lg border border-slate-600 bg-slate-800/80 p-3">
+                <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border border-slate-600 bg-slate-950">
+                  {newImagePreviewUrl ? (
+                    <img src={newImagePreviewUrl} alt="" className="h-full w-full object-cover" />
+                  ) : editingExistingImageUrl ? (
+                    <img src={editingExistingImageUrl} alt="" className="h-full w-full object-cover" />
+                  ) : null}
+                </div>
+                <div className="min-w-0 pt-1 text-xs text-slate-400">
+                  {newImagePreviewUrl ? (
+                    <p className="font-medium text-orange-300">New image (save to apply)</p>
+                  ) : (
+                    <p>Current image — choose a file below to replace it.</p>
+                  )}
+                </div>
+              </div>
+            )}
+            <label className="flex cursor-pointer flex-col gap-2">
+              <input
+                key={editingItemId ?? 'new-item'}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/*"
+                onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+                className="mt-1 w-full text-sm text-slate-200 file:mr-3 file:rounded-lg file:border-0 file:bg-orange-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-orange-500"
+              />
+            </label>
+          </div>
 
           <label className="inline-flex items-center gap-3 rounded-lg border border-slate-600 bg-slate-800 px-4 py-3 text-sm text-slate-300">
             <input
@@ -216,6 +256,7 @@ export function MenuManagementPage() {
               setEditingItemId(null)
               setForm(initialState)
               setSelectedFile(null)
+              setEditingExistingImageUrl(null)
             }}
             className="rounded-xl border border-slate-600 bg-slate-800 px-5 py-3 font-semibold text-slate-200 hover:bg-slate-700"
           >
@@ -231,12 +272,23 @@ export function MenuManagementPage() {
             className="rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-sm"
           >
             <div className="flex items-start justify-between gap-4">
-              <div>
+              <div className="flex min-w-0 gap-4">
+                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-slate-600 bg-slate-800">
+                  {item.image_url ? (
+                    <img src={item.image_url} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-slate-600">
+                      <ImageIcon className="h-8 w-8" aria-hidden />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                   {item.category?.name}
                 </p>
                 <h3 className="mt-1 text-xl font-semibold text-white">{item.name}</h3>
                 <p className="mt-2 text-sm text-slate-400">{item.description}</p>
+                </div>
               </div>
               <span className="rounded-full border border-slate-600 bg-slate-800 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-300">
                 {item.is_available ? 'In stock' : 'Hidden'}

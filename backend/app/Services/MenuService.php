@@ -29,7 +29,7 @@ class MenuService
 
     public function delete(MenuItem $menuItem): void
     {
-        if ($menuItem->image_path) {
+        if ($menuItem->image_path && ! MenuItem::isRemoteImagePath($menuItem->image_path)) {
             Storage::disk($this->imageDisk())->delete($menuItem->image_path);
         }
 
@@ -39,7 +39,7 @@ class MenuService
     private function preparePayload(MenuItem $menuItem, array $payload): array
     {
         if (isset($payload['image']) && $payload['image'] instanceof UploadedFile) {
-            if ($menuItem->image_path) {
+            if ($menuItem->image_path && ! MenuItem::isRemoteImagePath($menuItem->image_path)) {
                 Storage::disk($this->imageDisk())->delete($menuItem->image_path);
             }
 

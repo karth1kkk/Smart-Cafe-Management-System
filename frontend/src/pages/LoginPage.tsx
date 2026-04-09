@@ -214,7 +214,7 @@ export function LoginPage() {
 
       <div className="relative z-10 flex min-h-screen flex-1 flex-col">
         {/* Top bar */}
-        <header className="flex shrink-0 items-center justify-between gap-4 px-4 pt-4 md:px-8 md:pt-6">
+        <header className="flex shrink-0 items-center justify-between gap-4 px-4 pt-2 md:px-8 md:pt-3">
           <div className="flex items-center gap-2 rounded-full border border-slate-600/80 bg-slate-800/90 px-3 py-2 shadow-lg backdrop-blur-sm">
             {step === 'pin' ? (
               <button
@@ -241,9 +241,9 @@ export function LoginPage() {
         </header>
 
         {/* Scrollable main — fixes profiles being clipped off-screen */}
-        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-4 pb-10 pt-4 md:px-8 md:pb-12 md:pt-6">
+        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-4 pb-10 pt-0 md:px-8 md:pb-12">
           {/* Brand */}
-          <div className="flex shrink-0 flex-col items-center text-center">
+          <div className="-mt-2 flex shrink-0 flex-col items-center text-center md:-mt-2">
             <div className="text-3xl font-bold tracking-tight md:text-4xl">
               <span className="text-orange-500">Smart</span>
               <span className="text-white"> Cafe</span>
@@ -255,7 +255,7 @@ export function LoginPage() {
           </div>
 
           {/* Mode toggle */}
-          <div className="mx-auto mt-8 flex shrink-0 rounded-full border border-slate-600 bg-slate-800/80 p-1 shadow-inner backdrop-blur-sm">
+          <div className="mx-auto mt-4 flex shrink-0 rounded-full border border-slate-600 bg-slate-800/80 p-1 shadow-inner backdrop-blur-sm">
             <button
               type="button"
               onClick={() => {

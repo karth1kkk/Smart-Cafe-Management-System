@@ -42,4 +42,14 @@ class MenuItem extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    /** Stored path on disk, or a full URL when using remote/demo images. */
+    public static function isRemoteImagePath(?string $path): bool
+    {
+        if ($path === null || $path === '') {
+            return false;
+        }
+
+        return str_starts_with($path, 'http://') || str_starts_with($path, 'https://');
+    }
 }
