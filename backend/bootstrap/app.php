@@ -16,6 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Cross-origin SPA (e.g. Vercel → Heroku): session + XSRF cookies often misalign for
+        // stateful Sanctum CSRF. PIN login is application-level auth; exempt these routes.
+        $middleware->validateCsrfTokens(except: [
+            'api/login',
+            'api/logout',
+        ]);
         $middleware->statefulApi();
         $middleware->replaceInGroup(
             'api',
