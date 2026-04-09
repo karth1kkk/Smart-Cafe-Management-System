@@ -3,7 +3,6 @@
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Laravel\Sanctum\Http\Middleware\AuthenticateSession;
-use Laravel\Sanctum\Sanctum;
 
 return [
 
@@ -27,7 +26,6 @@ return [
         '127.0.0.1:5173',
         '::1',
         '*.vercel.app',
-        Sanctum::currentApplicationUrlWithPort(),
     ]))),
 
     /*

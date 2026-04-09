@@ -32,3 +32,10 @@ Local development
 Frontend
 
   Deploy on Vercel; set VITE_API_URL to your Heroku app URL.
+
+HTTP 500 on Heroku
+
+  - Attach Heroku Postgres so DATABASE_URL is set (Laravel now maps DATABASE_URL → DB URL).
+  - Run migrations: heroku run php artisan migrate --app YOUR_APP
+  - Ensure APP_KEY is set: heroku config:get APP_KEY
+  - Read the error: heroku logs --tail --app YOUR_APP
