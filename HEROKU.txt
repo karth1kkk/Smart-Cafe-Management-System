@@ -1,0 +1,35 @@
+Heroku deploy (Laravel API in backend/)
+
+Why pushes fail with "No default language could be detected"
+  The repo root has no composer.json / package.json. Heroku only sees backend/ and
+  frontend/ after clone, so you must set buildpacks yourself and point the slug at backend/.
+
+One-time setup (Heroku CLI)
+
+  1) Create the app on Heroku-24 (or open your existing app).
+
+  2) Clear auto-detected buildpacks and use a subdirectory buildpack, then PHP:
+
+     heroku buildpacks:clear -a YOUR_APP_NAME
+     heroku buildpacks:set https://github.com/timanovsky/subdir-heroku-buildpack -a YOUR_APP_NAME
+     heroku buildpacks:add heroku/php -a YOUR_APP_NAME
+
+  3) Tell the first buildpack which folder becomes the app root:
+
+     heroku config:set PROJECT_PATH=backend -a YOUR_APP_NAME
+
+  4) Set Laravel env vars at minimum:
+
+     heroku config:set APP_KEY=base64:... -a YOUR_APP_NAME
+     heroku config:set APP_ENV=production APP_DEBUG=false -a YOUR_APP_NAME
+     (Add DATABASE_URL, STRIPE_*, SANCTUM_*, etc. from backend/.env.example.)
+
+  5) Optional release migrations (add a release line to backend/Procfile if you use a DB):
+
+     release: php artisan migrate --force
+
+  6) git push heroku main
+
+The backend/Procfile runs Apache + PHP against Laravel public/.
+
+Frontend stays on Vercel (or elsewhere); point VITE_API_URL at this Heroku app URL.
