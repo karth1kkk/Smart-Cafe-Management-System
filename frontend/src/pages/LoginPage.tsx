@@ -89,16 +89,17 @@ export function LoginPage() {
       if (!valid) {
         setStaff([])
         setLoadError(
-          'Could not read staff from the API. Use npm run dev (Vite proxies /api to Laravel) or set VITE_API_URL to your backend, e.g. http://127.0.0.1:8000',
+          'Could not read staff from the API. For local dev use npm run dev (Vite proxies /api). For production, set VITE_API_URL if you use a different API than the default Heroku URL.',
         )
         return
       }
       setStaff(list)
-    } catch {
+    } catch (err) {
       setStaff([])
-      setLoadError(
-        'Could not reach the API. Start the backend with php artisan serve (port 8000) and try again.',
-      )
+      const msg = import.meta.env.DEV
+        ? 'Could not reach the API. Start the backend with php artisan serve (port 8000) and try again.'
+        : 'Could not reach the API. Check Heroku CORS_ALLOWED_ORIGINS and SANCTUM_STATEFUL_DOMAINS include your Vercel URL, or set VITE_API_URL to your API origin and redeploy.'
+      setLoadError(msg)
     } finally {
       setStaffLoading(false)
     }

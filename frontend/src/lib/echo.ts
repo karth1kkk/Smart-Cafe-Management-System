@@ -32,6 +32,17 @@ export function isRealtimeEnabled(): boolean {
   return import.meta.env.VITE_ENABLE_REALTIME === 'true'
 }
 
+function broadcastingAuthOrigin(): string {
+  const origin = getApiOrigin()
+  if (origin !== '') {
+    return origin
+  }
+  if (import.meta.env.DEV && typeof window !== 'undefined') {
+    return window.location.origin
+  }
+  return 'http://localhost:8000'
+}
+
 export function getEcho(): Echo<'reverb'> | null {
   if (!isRealtimeEnabled()) {
     return null
@@ -56,7 +67,7 @@ export function getEcho(): Echo<'reverb'> | null {
       wssPort: wsPort,
       forceTLS: scheme === 'https',
       enabledTransports: ['ws', 'wss'],
-      authEndpoint: `${getApiOrigin() || 'http://localhost:8000'}/broadcasting/auth`,
+      authEndpoint: `${broadcastingAuthOrigin()}/broadcasting/auth`,
       withCredentials: true,
     })
   } catch {
