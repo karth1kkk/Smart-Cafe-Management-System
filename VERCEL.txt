@@ -1,0 +1,13 @@
+Vercel deployment (Smart Cafe frontend)
+
+1) Root Directory (Project → Settings → General)
+   - Set to EMPTY / "." (repository root) so the root vercel.json applies, OR
+   - Set to "frontend" — then only frontend/vercel.json is used (install = npm ci, no cd).
+
+2) Build & Development Settings (same page)
+   - Turn OFF overrides for Install Command, Build Command, Output Directory.
+   - If Install Command still shows "cd frontend && npm ci", DELETE it (use Automatic).
+
+3) Deploy the latest commit from GitHub
+   - Old commits (e.g. 6273cf0) still had "cd frontend" in vercel.json.
+   - Push main and redeploy so the build uses the current vercel.json.
