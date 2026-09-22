@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 import { api } from '../lib/api'
 import { useCartStore } from '../stores/cartStore'
@@ -7,7 +7,6 @@ import type { ApiResource, Order } from '../types/api'
 
 export function CheckoutSuccessPage() {
   const [params] = useSearchParams()
-  const navigate = useNavigate()
   const clear = useCartStore((state) => state.clear)
   const [status, setStatus] = useState<'loading' | 'ok' | 'error'>('loading')
   const sessionId = params.get('session_id')
@@ -25,17 +24,25 @@ export function CheckoutSuccessPage() {
         })
         clear()
         setStatus('ok')
-        window.setTimeout(() => navigate('/', { replace: true }), 2000)
       } catch {
         setStatus('error')
       }
     })()
-  }, [sessionId, clear, navigate])
+  }, [sessionId, clear])
 
   if (!sessionId) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-4">
-        <p className="text-center text-slate-400">Missing checkout session. Return to the register.</p>
+        <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center shadow-xl">
+          <p className="text-lg font-semibold text-red-400">Missing checkout session</p>
+          <p className="mt-2 text-sm text-slate-400">Return to the register to try again.</p>
+          <Link
+            to="/"
+            className="mt-6 inline-block rounded-lg bg-orange-600 px-4 py-2 font-semibold text-white hover:bg-orange-700"
+          >
+            Back to Register
+          </Link>
+        </div>
       </div>
     )
   }
@@ -49,7 +56,13 @@ export function CheckoutSuccessPage() {
         {status === 'ok' ? (
           <>
             <p className="text-lg font-semibold text-emerald-400">Payment received</p>
-            <p className="mt-2 text-sm text-slate-400">Your order is in the queue. Redirecting…</p>
+            <p className="mt-2 text-sm text-slate-400">Your order is in the queue. Thank you!</p>
+            <Link
+              to="/"
+              className="mt-6 inline-block rounded-lg bg-orange-600 px-4 py-2 font-semibold text-white hover:bg-orange-700"
+            >
+              Back to Register
+            </Link>
           </>
         ) : null}
         {status === 'error' ? (
@@ -58,6 +71,12 @@ export function CheckoutSuccessPage() {
             <p className="mt-2 text-sm text-slate-400">
               Try again from the register or check that STRIPE_SECRET matches your Stripe account.
             </p>
+            <Link
+              to="/"
+              className="mt-6 inline-block rounded-lg bg-orange-600 px-4 py-2 font-semibold text-white hover:bg-orange-700"
+            >
+              Back to Register
+            </Link>
           </>
         ) : null}
       </div>
