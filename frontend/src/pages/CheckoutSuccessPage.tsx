@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import { api } from '../lib/api'
+import { useAuthStore } from '../stores/authStore'
 import { useCartStore } from '../stores/cartStore'
 import type { ApiResource, Order } from '../types/api'
 
 export function CheckoutSuccessPage() {
   const [params] = useSearchParams()
   const clear = useCartStore((state) => state.clear)
+  const bootstrap = useAuthStore((state) => state.bootstrap)
   const [status, setStatus] = useState<'loading' | 'ok' | 'error'>('loading')
   const sessionId = params.get('session_id')
 
@@ -26,9 +28,13 @@ export function CheckoutSuccessPage() {
         setStatus('ok')
       } catch {
         setStatus('error')
+      } finally {
+        // Re-sync auth state from the server so the session cookie is
+        // re-validated after the cross-domain redirect from Stripe.
+        await bootstrap()
       }
     })()
-  }, [sessionId, clear])
+  }, [sessionId, clear, bootstrap])
 
   if (!sessionId) {
     return (
