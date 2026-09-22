@@ -30,9 +30,12 @@ COPY . /app
 # Install Composer dependencies with optimizations for production.
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Run database migrations during the build
-# The --force flag is required because the build environment is non-interactive
-RUN php artisan migrate --force
+# Copy the start script
+COPY ./start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
+# Override the default command to run migrations first
+CMD ["start.sh"]
 
 # Set permissions for the storage and bootstrap/cache directories.
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
