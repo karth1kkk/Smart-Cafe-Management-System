@@ -18,12 +18,12 @@ return [
 
     'success_url' => env(
         'STRIPE_SUCCESS_URL',
-        rtrim(env('FRONTEND_URL', 'http://localhost:5173'), '/').'/checkout/success?session_id={CHECKOUT_SESSION_ID}'
+        rtrim(env('FRONTEND_URL', 'https://smart-cafe-management-system.vercel.app'), '/').'/checkout/success?session_id={CHECKOUT_SESSION_ID}'
     ),
 
     'cancel_url' => env(
         'STRIPE_CANCEL_URL',
-        rtrim(env('FRONTEND_URL', 'http://localhost:5173'), '/').'/checkout/cancel'
+        rtrim(env('FRONTEND_URL', 'https://smart-cafe-management-system.vercel.app'), '/').'/checkout/cancel'
     ),
 
 ];
