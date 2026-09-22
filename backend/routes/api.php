@@ -15,7 +15,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/menu', [MenuController::class, 'index']);
 
-// Stripe checkout routes (public — POS dashboard can reach these without a token)
+// Public checkout routes (POS dashboard can reach these without a token)
 Route::post('/checkout', [CheckoutController::class, 'store']);
 Route::post('/checkout/complete', [CheckoutController::class, 'complete']);
 

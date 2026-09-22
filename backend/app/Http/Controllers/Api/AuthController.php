@@ -10,7 +10,6 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -26,19 +25,20 @@ class AuthController extends Controller
 
     public function session(Request $request): JsonResponse
     {
-        $user = Auth::guard('web')->user();
+        // With token auth, $request->user() is resolved from the Bearer token.
+        $user = $request->user();
 
         return response()->json([
             'data' => $user ? UserResource::make($user)->resolve() : null,
         ]);
     }
 
-    public function login(LoginRequest $request): UserResource
+    public function login(LoginRequest $request): JsonResponse
     {
         $data = $request->validated();
         $user = User::query()->findOrFail($data['user_id']);
 
-        // Read directly from the database so the hashed cast / model state cannot skew verification.
+        // Read directly from the DB so the hashed cast / model state cannot skew verification.
         $storedPin = DB::table('users')->where('id', $user->id)->value('pin');
 
         if ($storedPin === null || $storedPin === '') {
@@ -50,7 +50,6 @@ class AuthController extends Controller
         $plain = $data['pin'];
         $stored = (string) $storedPin;
 
-        // PINs from the "hashed" cast are bcrypt/argon. Hash::check() throws on non-hash strings.
         $pinValid = false;
         if ($stored !== '' && str_starts_with($stored, '$')) {
             $pinValid = Hash::check($plain, $stored);
@@ -73,18 +72,22 @@ class AuthController extends Controller
             ])->status(401);
         }
 
-        Auth::login($user);
-        $request->session()->regenerate();
+        // Revoke any previous tokens for this user (optional but tidy).
+        $user->tokens()->delete();
 
-        return UserResource::make($request->user());
+        // Issue a new API token.
+        $token = $user->createToken('pos')->plainTextToken;
+
+        return response()->json([
+            'data' => UserResource::make($user)->resolve(),
+            'token' => $token,
+        ]);
     }
 
     public function logout(Request $request): JsonResponse
     {
-        Auth::guard('web')->logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        // Revoke the token that was used to authenticate this request.
+        $request->user()?->currentAccessToken()?->delete();
 
         return response()->json([
             'message' => 'Logged out successfully.',
