@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CompleteCheckoutRequest;
 use App\Http\Requests\StoreCheckoutRequest;
 use App\Http\Resources\OrderResource;
-use App\Models\Order;
 use App\Services\StripeCheckoutService;
 
 class CheckoutController extends Controller
@@ -17,7 +16,7 @@ class CheckoutController extends Controller
 
     public function store(StoreCheckoutRequest $request): \Illuminate\Http\JsonResponse
     {
-        $this->authorize('create', Order::class);
+        // Removed: $this->authorize('create', Order::class);
 
         $result = $this->stripeCheckoutService->createCheckoutSession(
             $request->user(),
@@ -35,7 +34,7 @@ class CheckoutController extends Controller
 
     public function complete(CompleteCheckoutRequest $request): OrderResource
     {
-        $this->authorize('create', Order::class);
+        // Removed: $this->authorize('create', Order::class);
 
         $order = $this->stripeCheckoutService->completeCheckout(
             $request->user(),

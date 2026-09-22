@@ -7,9 +7,37 @@ use Illuminate\Validation\Rule;
 
 class StoreCheckoutRequest extends FormRequest
 {
+    /**
+     * Anyone (including guests) can submit a checkout request.
+     * Authorization is enforced at the route level if needed.
+     */
     public function authorize(): bool
     {
         return true;
+    }
+
+    /**
+     * Normalize input before validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        $items = $this->input('items', []);
+
+        if (is_array($items)) {
+            foreach ($items as $index => $item) {
+                if (isset($item['size']) && is_string($item['size'])) {
+                    $items[$index]['size'] = strtoupper($item['size']);
+                }
+                if (isset($item['milk_type']) && is_string($item['milk_type'])) {
+                    $items[$index]['milk_type'] = strtolower($item['milk_type']);
+                }
+            }
+        }
+
+        $this->merge([
+            'items' => $items,
+            'notes' => is_string($this->input('notes')) ? trim($this->input('notes')) : null,
+        ]);
     }
 
     public function rules(): array
