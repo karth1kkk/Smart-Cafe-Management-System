@@ -1,39 +1,44 @@
-# Use the official PHP 8.4 FPM image
-FROM php:8.4-fpm
+# Use the official FrankenPHP image, which includes PHP 8.4 and a built-in HTTP server.
+FROM dunglas/frankenphp
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    libpq-dev \
+# Install required PHP extensions for Laravel and your database.
+RUN install-php-extensions \
+    pdo \
+    pdo_mysql \
+    pdo_pgsql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
     zip \
-    unzip
+    intl \
+    opcache
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Remove file capabilities so the binary works with Render's restricted environment.
+RUN setcap -r /usr/local/bin/frankenphp
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip
-
-# Get latest Composer
+# Copy the Composer binary from the official Composer image.
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
-WORKDIR /var/www
+# Set the working directory inside the container.
+WORKDIR /app
 
-# Copy the backend directory into the container
-COPY . /var/www
+# Copy the Laravel application into the container.
+COPY . /app
 
-# Install composer dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Install Composer dependencies with optimizations for production.
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Change ownership of our applications
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+# Run database migrations during the build
+# The --force flag is required because the build environment is non-interactive
+RUN php artisan migrate --force
 
-# Expose port 9000 and start php-fpm server
-EXPOSE 9000
-CMD ["php-fpm"]
+# Set permissions for the storage and bootstrap/cache directories.
+RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
+
+# Tell FrankenPHP to listen on all interfaces on port 80.
+ENV SERVER_NAME=:80
+
+# Expose port 80 to allow traffic from Render's load balancer.
+EXPOSE 80
