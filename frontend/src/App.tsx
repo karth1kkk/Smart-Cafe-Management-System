@@ -17,17 +17,20 @@ function App() {
 
   return (
     <Routes>
+      {/* Public routes — must be reachable without authentication */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
       <Route path="/checkout/cancel" element={<CheckoutCancelPage />} />
 
+      {/* Protected app routes */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
         <Route element={<AppShell />}>
           <Route path="/" element={<PosDashboardPage />} />
           <Route path="/orders" element={<OrdersQueuePage />} />
         </Route>
       </Route>
 
+      {/* Admin-only routes */}
       <Route element={<ProtectedRoute roles={['admin']} />}>
         <Route element={<AppShell />}>
           <Route path="/menu" element={<MenuManagementPage />} />
