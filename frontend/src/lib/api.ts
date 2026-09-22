@@ -4,7 +4,7 @@ import axios from 'axios'
  * Deployed Laravel API (Heroku). Used in production when VITE_API_URL is unset.
  * Override with VITE_API_URL for staging or another backend.
  */
-const DEFAULT_PRODUCTION_API_ORIGIN = 'https://smartcafe-backend-3d04a0fbb50e.herokuapp.com'
+const DEFAULT_PRODUCTION_API_ORIGIN = 'https://smart-cafe-management-system-qh9s.onrender.com'
 
 const envApiUrl = import.meta.env.VITE_API_URL
 
