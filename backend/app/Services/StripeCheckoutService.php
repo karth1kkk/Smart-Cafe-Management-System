@@ -19,7 +19,7 @@ class StripeCheckoutService
     /**
      * @return array{url: string, checkout_id: int}
      */
-    public function createCheckoutSession(User $user, array $itemsPayload, ?string $notes): array
+    public function createCheckoutSession(?User $user, array $itemsPayload, ?string $notes): array
     {
         $secret = config('stripe.secret');
         if (! is_string($secret) || $secret === '') {
@@ -41,8 +41,18 @@ class StripeCheckoutService
             ]);
         }
 
+        // Use the authenticated user if present; otherwise assign to the first staff user
+        // so the order still has an owner and foreign key constraints are satisfied.
+        $ownerId = $user?->id ?? User::query()->value('id');
+
+        if (! $ownerId) {
+            throw ValidationException::withMessages([
+                'user' => ['No user exists to attach this order to. Seed a staff account first.'],
+            ]);
+        }
+
         $checkout = StripeCheckout::create([
-            'user_id' => $user->id,
+            'user_id' => $ownerId,
             'stripe_session_id' => null,
             'items_json' => $itemsPayload,
             'notes' => $notes,
@@ -74,7 +84,7 @@ class StripeCheckoutService
             'cancel_url' => config('stripe.cancel_url'),
             'metadata' => [
                 'checkout_id' => (string) $checkout->id,
-                'user_id' => (string) $user->id,
+                'user_id' => (string) $ownerId,
             ],
         ]);
 
@@ -94,7 +104,7 @@ class StripeCheckoutService
         ];
     }
 
-    public function completeCheckout(User $user, string $stripeSessionId): Order
+    public function completeCheckout(?User $user, string $stripeSessionId): Order
     {
         $secret = config('stripe.secret');
         if (! is_string($secret) || $secret === '') {
@@ -117,7 +127,8 @@ class StripeCheckoutService
             ->where('stripe_session_id', $session->id)
             ->firstOrFail();
 
-        if ($checkout->user_id !== $user->id) {
+        // Only enforce ownership when a user is authenticated.
+        if ($user !== null && $checkout->user_id !== $user->id) {
             throw ValidationException::withMessages([
                 'session_id' => ['This checkout does not belong to the current user.'],
             ]);
@@ -129,6 +140,10 @@ class StripeCheckoutService
             ]);
         }
 
-        return $this->orderService->createFromStripeCheckout($user, $checkout, $session);
+        // Resolve the owner for order creation — prefer the authenticated user,
+        // otherwise fall back to the user attached to the StripeCheckout record.
+        $owner = $user ?? User::query()->findOrFail($checkout->user_id);
+
+        return $this->orderService->createFromStripeCheckout($owner, $checkout, $session);
     }
 }
