@@ -4,14 +4,12 @@ set -e
 # Run database migrations
 php artisan migrate --force
 
-# Seed the database with staff accounts
+# Seed the database
 php artisan db:seed --force
 
-# Clear and rebuild config cache to pick up environment variables
+# Clear any stale config cache and rebuild it with current environment variables
 php artisan config:clear
 php artisan config:cache
-
-php artisan tinker --execute="echo config('services.stripe.secret');"
 
 # Start FrankenPHP
 exec frankenphp run --config /etc/frankenphp/Caddyfile
