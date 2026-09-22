@@ -15,15 +15,16 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/menu', [MenuController::class, 'index']);
 
+// Stripe checkout routes (public — POS dashboard can reach these without a token)
+Route::post('/checkout', [CheckoutController::class, 'store']);
+Route::post('/checkout/complete', [CheckoutController::class, 'complete']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
     Route::get('/orders', [OrderController::class, 'index']);
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus']);
-
-    Route::post('/checkout', [CheckoutController::class, 'store']);
-    Route::post('/checkout/complete', [CheckoutController::class, 'complete']);
 
     Route::post('/menu', [MenuController::class, 'store'])->middleware('role:admin');
     Route::put('/menu/{menuItem}', [MenuController::class, 'update'])->middleware('role:admin');
