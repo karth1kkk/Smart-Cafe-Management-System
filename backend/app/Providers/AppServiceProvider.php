@@ -23,6 +23,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(MenuItem::class, MenuItemPolicy::class);
         Gate::policy(InventoryItem::class, InventoryItemPolicy::class);
         Gate::policy(Order::class, OrderPolicy::class);
-        config()->set('services.stripe.secret', env('STRIPE_SECRET'));
+        config()->set('services.stripe.secret', config('services.stripe.secret') );
     }
 }

@@ -11,5 +11,7 @@ php artisan db:seed --force
 php artisan config:clear
 php artisan config:cache
 
+php artisan tinker --execute="echo config('services.stripe.secret');"
+
 # Start FrankenPHP
 exec frankenphp run --config /etc/frankenphp/Caddyfile
