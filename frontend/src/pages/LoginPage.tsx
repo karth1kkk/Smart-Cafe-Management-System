@@ -370,10 +370,10 @@ export function LoginPage() {
                       )
                     })}
                   </div>
-                  {/* <p className="mt-10 text-center text-xs text-slate-500">
+                  <p className="mt-10 text-center text-xs text-slate-500">
                     Demo PINs: Admin <span className="font-mono text-orange-400">123456</span> · Barista{' '}
                     <span className="font-mono text-orange-400">654321</span>
-                  </p> */}
+                  </p>
                 </>
               )}
             </div>
